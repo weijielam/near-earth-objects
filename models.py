@@ -46,11 +46,15 @@ class NearEarthObject:
         # and a missing diameter being represented by `float('nan')`.
         self.designation = info['pdes'] if 'pdes' in info else None
         self.name = info['name'] if (info and 'name' in info and is_neither_blank_nor_empty(info['name'])) else None
-        self.diameter = float(info['diameter'] if (info and is_neither_blank_nor_empty(info['diameter'])) else None
-        self.hazardous = True if info["pha"] in ('Y', 'y') else False 
+        self.diameter = float(info['diameter']) if (info and is_neither_blank_nor_empty(info['diameter'])) else float('nan')
+        self.hazardous = True if info["pha"] in ('Y', 'y') else False
 
         # Create an empty initial collection of linked approaches.
         self.approaches = []
+
+    def add_cad(self, approach):
+        self.approaches.append(approach)
+        self.approaches = list(set(self.approaches))
 
     @property
     def fullname(self):
@@ -92,13 +96,16 @@ class CloseApproach:
         # onto attributes named `_designation`, `time`, `distance`, and `velocity`.
         # You should coerce these values to their appropriate data type and handle any edge cases.
         # The `cd_to_datetime` function will be useful.
-        self._designation = info['designation']
-        self.time = cd_to_datetime(info['time'])
-        self.distance = float(info['distance'])
-        self.velocity = float(info['velocity'])
+        self._designation = info['des']
+        self.time = cd_to_datetime(info['cd'])
+        self.distance = float(info['dist'])
+        self.velocity = float(info['v_rel'])
 
         # Create an attribute for the referenced NEO, originally None.
         self.neo = None
+
+    def set_neo(self, neo):
+        self.neo = neo
 
     @property
     def time_str(self):
